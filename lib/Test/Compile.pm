@@ -4,11 +4,13 @@ use warnings;
 use strict;
 use Test::Builder;
 use File::Spec;
+use UNIVERSAL::require;
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 
 my $Test = Test::Builder->new;
+
 
 sub import {
     my $self = shift;
@@ -34,16 +36,18 @@ sub pm_file_ok {
         return;
     }
 
-    my $ok = do $file;
+    my $module = $file;
+    $module =~ s!^(blib/)?lib/!!;
+    $module =~ s!/!::!g;
+    $module =~ s/\.pm$//;
+
+    my $ok = 1;
+    $module->use;
+    $ok = 0 if $@;
+
     my $diag = '';
     unless ($ok) {
-        if ($@) {
-            $diag = "couldn't parse $file: $@";
-        } elsif (!defined $ok) {
-            $diag = "couldn't do $file: $!";
-        } else {
-            $diag = "couldn't run $file";
-        }
+        $diag = "couldn't use $module ($file): $@";
     }
 
     $Test->ok($ok, $name);
@@ -58,8 +62,8 @@ sub all_pm_files_ok {
     $Test->plan(tests => scalar @files);
 
     my $ok = 1;
-    foreach my $file (@files) {
-        pm_file_ok($file, $file) or undef $ok;
+    for (@files) {
+        pm_file_ok($_) or undef $ok;
     }
     $ok;
 }
@@ -116,8 +120,13 @@ Test::Compile - check whether Perl module files compile correctly
 C<Test::Compile> lets you check the validity of a Perl module file, and report
 its results in standard C<Test::Simple> fashion.
 
-    use Test::Compile tests => $num_tests;
-    pm_file_ok($file, "Valid Perl module file");
+    BEGIN {
+        use Test::Compile tests => $num_tests;
+        pm_file_ok($file, "Valid Perl module file");
+    }
+
+It's probably a good idea to run this in a BEGIN block. The examples below
+omit it for clarity.
 
 Module authors can include the following in a F<t/00_compile.t> file and
 have C<Test::Compile> automatically find and check all Perl module files in a

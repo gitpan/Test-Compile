@@ -3,6 +3,7 @@ abstract: check whether Perl module files compile correctly
 author: Marcel GrE<uuml>nauer, C<< <marcel@cpan.org> >>
 build_requires: 
   Test::More: 0
+  UNIVERSAL::require: 0
 distribution_type: module
 generated_by: Module::Install version 0.67
 license: perl
@@ -14,4 +15,4 @@ no_index:
   directory: 
     - inc
     - t
-version: 0.01
+version: 0.02
