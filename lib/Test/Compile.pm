@@ -6,7 +6,8 @@ use Test::Builder;
 use File::Spec;
 use UNIVERSAL::require;
 
-our $VERSION = '0.02';
+
+our $VERSION = '0.04';
 
 
 my $Test = Test::Builder->new;
@@ -134,8 +135,8 @@ module distribution:
 
     use Test::More;
     eval "use Test::Compile 1.00";
-    plan skip_all => "Test::Compile 1.00 required for testing compilation"
-      if $@;
+    Test::More->builder->BAIL_OUT(
+        "Test::Compile 1.00 required for testing compilation") if $@;
     all_pm_files_ok();
 
 You can also specify a list of files to check, using the
@@ -144,8 +145,8 @@ C<all_pm_files()> function supplied:
     use strict;
     use Test::More;
     eval "use Test::Compile 1.00";
-    plan skip_all => "Test::Compile 1.00 required for testing compilation"
-      if $@;
+    Test::More->builder->BAIL_OUT(
+        "Test::Compile 1.00 required for testing compilation") if $@;
     my @pmdirs = qw(blib script);
     all_pm_files_ok(all_pm_files(@pmdirs));
 
@@ -154,14 +155,20 @@ Or even (if you're running under L<Apache::Test>):
     use strict;
     use Test::More;
     eval "use Test::Compile 1.00";
-    plan skip_all => "Test::Compile 1.00 required for testing compilation"
-      if $@;
+    Test::More->builder->BAIL_OUT(
+        "Test::Compile 1.00 required for testing compilation") if $@;
 
     my @pmdirs = qw(blib script);
     use File::Spec::Functions qw(catdir updir);
     all_pm_files_ok(
         all_pm_files( map { catdir updir, $_ } @pmdirs )
     );
+
+Why do the examples use C<BAIL_OUT()> instead of C<skip_all()>? Because
+testing whether a module compiles is important. C<skip_all()> is ok to use
+with L<Test::Pod>, because if the pod is malformed the program is still going
+to run. But checking whether a module even compiles is something else.
+Test::Compile should be mandatory, not optional.
 
 =head1 DESCRIPTION
 
