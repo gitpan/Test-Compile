@@ -6,7 +6,8 @@ perl_version '5.006';
 requires 'UNIVERSAL::require';
 
 build_requires 'Test::More' => '0.70';
+build_requires 'Test::Pod';
+build_requires 'Test::Pod::Coverage';
 
-use_standard_tests;
 auto_include;
 WriteAll;

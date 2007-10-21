@@ -2,9 +2,9 @@
 abstract: check whether Perl module files compile correctly
 author: Marcel GrE<uuml>nauer, C<< <marcel@cpan.org> >>
 build_requires: 
-  Test::Compile: 0
-  Test::More: 0
-  UNIVERSAL::require: 0
+  Test::More: 0.70
+  Test::Pod: 0
+  Test::Pod::Coverage: 0
 distribution_type: module
 generated_by: Module::Install version 0.67
 license: perl
@@ -19,4 +19,4 @@ no_index:
 requires: 
   UNIVERSAL::require: 0
   perl: 5.6.0
-version: 0.04
+version: 0.05
