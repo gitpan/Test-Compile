@@ -8,7 +8,7 @@ use File::Spec;
 use UNIVERSAL::require;
 
 
-our $VERSION = '0.06';
+our $VERSION = '0.07';
 
 
 my $Test = Test::Builder->new;
@@ -66,32 +66,29 @@ sub pl_file_ok {
     my $file = shift;
     my $name = @_ ? shift : "Compile test for $file";
 
-    SKIP: {
+    # Exclude VMS because $^X doesn't work
+    # In general perl is a symlink to perlx.y.z
+    # but VMS stores symlinks differently...
+    unless (os_is('OSFeatures::POSIXShellRedirection') and os_isnt('VMS')) {
+        $Test->skip('Test not compatible with your OS');
+        return;
+    }
 
-        # Exclude VMS because $^X doesn't work
-        # In general perl is a symlink to perlx.y.z
-        # but VMS stores symlinks differently...
-        unless (os_is('OSFeatures::POSIXShellRedirection') and os_isnt('VMS')) {
-            skip('Test not compatible with your OS');
-            return;
-        }
+    unless (-f $file) {
+        $Test->ok(0, $name);
+        $Test->diag("$file does not exist");
+        return;
+    }
 
-        unless (-f $file) {
-            $Test->ok(0, $name);
-            $Test->diag("$file does not exist");
-            return;
-        }
+    my $out = `$^X -cw $file 2>&1`;
 
-        my $out = `$^X -cw $file 2>&1`;
-
-        if ($?) {
-            $Test->ok(0, 'Script does not compile');
-            $Test->diag($out);
-            return;
-        } else {
-            $Test->ok(1);
-            return 1;
-        }
+    if ($?) {
+        $Test->ok(0, 'Script does not compile');
+        $Test->diag($out);
+        return;
+    } else {
+        $Test->ok(1);
+        return 1;
     }
 }
 
@@ -368,7 +365,7 @@ please use the C<testcompile> tag.
 
 =head1 VERSION 
                    
-This document describes version 0.06 of L<Test::Compile>.
+This document describes version 0.07 of L<Test::Compile>.
 
 =head1 BUGS AND LIMITATIONS
 

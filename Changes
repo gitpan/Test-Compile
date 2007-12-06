@@ -4,6 +4,16 @@ global:
 releases:
   - author: 'Marcel Gruenauer <marcel@cpan.org>'
     changes:
+      - set the version to 0.07
+      - fixed bug in pl_file_ok() where a SKIP block was used when Test->skip() should have been used
+      - added t/04_pl_file_ok-vms.t to verify that
+      - updated MANIFEST
+      - added t/04_pl_file_ok-vms.t
+    date: 2007-12-06T19:24:25Z
+    tags: []
+    version: 0.07
+  - author: 'Marcel Gruenauer <marcel@cpan.org>'
+    changes:
       - Converted Changes file to YAML style
       - '.shipit: added Twitter step'
       - 'Makefile.PL: added auto_install() and process_templates()'
