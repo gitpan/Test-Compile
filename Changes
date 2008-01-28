@@ -4,6 +4,13 @@ global:
 releases:
   - author: 'Marcel Gruenauer <marcel@cpan.org>'
     changes:
+      - set the version to 0.08
+      - we now check for Devel::CheckOS with UNIVERSAL::require so we don't use() it so Devel::CheckOS won't be included when using Test::Compile as part of Module::Install::StandardTests
+    date: 2008-01-28T16:07:04Z
+    tags: []
+    version: 0.08
+  - author: 'Marcel Gruenauer <marcel@cpan.org>'
+    changes:
       - set the version to 0.07
       - fixed bug in pl_file_ok() where a SKIP block was used when Test->skip() should have been used
       - added t/04_pl_file_ok-vms.t to verify that

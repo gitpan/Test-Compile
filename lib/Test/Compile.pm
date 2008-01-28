@@ -3,12 +3,11 @@ package Test::Compile;
 use warnings;
 use strict;
 use Test::Builder;
-use Devel::CheckOS qw(os_is os_isnt);
 use File::Spec;
 use UNIVERSAL::require;
 
 
-our $VERSION = '0.07';
+our $VERSION = '0.08';
 
 
 my $Test = Test::Builder->new;
@@ -66,12 +65,21 @@ sub pl_file_ok {
     my $file = shift;
     my $name = @_ ? shift : "Compile test for $file";
 
-    # Exclude VMS because $^X doesn't work
-    # In general perl is a symlink to perlx.y.z
-    # but VMS stores symlinks differently...
-    unless (os_is('OSFeatures::POSIXShellRedirection') and os_isnt('VMS')) {
-        $Test->skip('Test not compatible with your OS');
-        return;
+    # don't "use Devel::CheckOS" because Test::Compile is included by
+    # Module::Install::StandardTests, and we don't want to have to ship
+    # Devel::CheckOS with M::I::T as well.
+
+    if (Devel::CheckOS->require) {
+
+        # Exclude VMS because $^X doesn't work. In general perl is a symlink to
+        # perlx.y.z but VMS stores symlinks differently...
+
+        unless (Devel::CheckOS::os_is('OSFeatures::POSIXShellRedirection') and
+                Devel::CheckOS::os_isnt('VMS')) {
+
+            $Test->skip('Test not compatible with your OS');
+            return;
+        }
     }
 
     unless (-f $file) {
@@ -365,7 +373,7 @@ please use the C<testcompile> tag.
 
 =head1 VERSION 
                    
-This document describes version 0.07 of L<Test::Compile>.
+This document describes version 0.08 of L<Test::Compile>.
 
 =head1 BUGS AND LIMITATIONS
 
@@ -393,7 +401,7 @@ Sagar R. Shah C<< <srshah@cpan.org> >>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2007 by Marcel GrE<uuml>nauer
+Copyright 2007-2008 by Marcel GrE<uuml>nauer
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
