@@ -28,4 +28,4 @@ resources:
   homepage: http://search.cpan.org/dist/Test-Compile/
   license: http://dev.perl.org/licenses/
   repository: git://github.com/hanekomu/test-compile.git
-version: 0.10
+version: 0.11
