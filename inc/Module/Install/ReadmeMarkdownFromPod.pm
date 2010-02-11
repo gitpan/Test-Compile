@@ -1,12 +1,9 @@
 #line 1
 package Module::Install::ReadmeMarkdownFromPod;
-
 use 5.006;
 use strict;
 use warnings;
-
 our $VERSION = '0.03';
-
 use base qw(Module::Install::Base);
 
 sub readme_markdown_from {
@@ -18,13 +15,11 @@ sub readme_markdown_from {
     # non-authors don't have Pod::Markdown, which would be bad.
     require Pod::Markdown;
     $self->admin->copy_package('Pod::Markdown', $INC{'Pod/Markdown.pm'});
-
     my $parser = Pod::Markdown->new;
     $parser->parse_from_file($file);
     open my $fh, '>', 'README.mkdn' or die "$!\n";
     print $fh $parser->as_markdown;
     close $fh or die "$!\n";
-
     return 1 unless $clean;
     $self->postamble(<<"END");
 distclean :: license_clean
@@ -60,9 +55,7 @@ sub reference_module {
     $self->readme_from($file);
     $self->readme_markdown_from($file);
 }
-
 1;
-
 __END__
 
-#line 188
+#line 181

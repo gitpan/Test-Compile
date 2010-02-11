@@ -1,12 +1,9 @@
 #line 1
 package Pod::Markdown;
-
 use 5.006;
 use strict;
 use warnings;
-
 our $VERSION = '0.02';
-
 use base qw(Pod::Parser);
 
 sub initialize {
@@ -19,25 +16,23 @@ sub initialize {
 sub _private {
     my $self = shift;
     $self->{_MyParser} ||= {
-        Text      => [],     # final text
-        Indent    => 0,      # list indent levels counter
-        ListType  => '-',    # character on every item
-        searching => undef,  # what are we searching for? (title, author etc.)
-        Title     => undef,  # page title
-        Author    => undef,  # page author
+        Text      => [],       # final text
+        Indent    => 0,        # list indent levels counter
+        ListType  => '-',      # character on every item
+        searching => undef,    # what are we searching for? (title, author etc.)
+        Title     => undef,    # page title
+        Author    => undef,    # page author
     };
 }
 
 sub as_markdown {
     my ($parser, %args) = @_;
-    my $data   = $parser->_private;
-    my $lines  = $data->{Text};
-
+    my $data  = $parser->_private;
+    my $lines = $data->{Text};
     my @header;
     if ($args{with_meta}) {
         @header = $parser->_build_markdown_head;
     }
-
     join("\n" x 2, @header, @{$lines});
 }
 
@@ -155,7 +150,7 @@ sub textblock {
 
 sub interior_sequence {
     my ($parser, $seq_command, $seq_argument, $pod_seq) = @_;
-    my $data       = $parser->_private;
+    my $data      = $parser->_private;
     my %interiors = (
         'I' => sub { return '_' . $_[1] . '_' },      # italic
         'B' => sub { return '__' . $_[1] . '__' },    # bold
@@ -187,14 +182,12 @@ sub _resolv_link {
         # direct link to a URL
         return sprintf '<%s>', $arg;
     } elsif ($arg =~ m{^(\w+(::\w+)*)$}) {
-        return "[$1](http://search.cpan.org/perldoc?$1)"
+        return "[$1](http://search.cpan.org/perldoc?$1)";
     } else {
         return sprintf '%s<%s>', $cmd, $arg;
     }
 }
-
 1;
-
 __END__
 
-#line 291
+#line 284
