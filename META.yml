@@ -4,7 +4,7 @@ author:
   - 'Sagar R. Shah C<< <srshah@cpan.org> >>'
 build_requires:
   ExtUtils::MakeMaker: 6.42
-  Test::More: 0.70
+  Test::More: 0.88
 configure_requires:
   ExtUtils::MakeMaker: 6.42
 distribution_type: module
@@ -29,4 +29,4 @@ resources:
   homepage: http://search.cpan.org/dist/Test-Compile/
   license: http://dev.perl.org/licenses/
   repository: git://github.com/hanekomu/test-compile.git
-version: 0.12
+version: 0.13
