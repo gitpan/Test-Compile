@@ -1,32 +1,23 @@
 ---
-abstract: 'Check whether Perl module files compile correctly'
+name: Test-Compile
+version: 0.13
 author:
-  - 'Sagar R. Shah C<< <srshah@cpan.org> >>'
-build_requires:
-  ExtUtils::MakeMaker: 6.42
-  Test::More: 0.88
-configure_requires:
-  ExtUtils::MakeMaker: 6.42
-distribution_type: module
-generated_by: 'Module::Install version 0.91'
+  - 'Evan Giles <egiles@cpan.org>'
+abstract: Check whether Perl module files compile correctly
 license: perl
+resources:
+  license: http://dev.perl.org/licenses/
+  repository: http://github.com/egiles/test-compile
+requires:
+  UNIVERSAL::require: 0
+  perl: v5.6.0
+configure_requires:
+  Module::Build: 0.340201
+provides:
+  Test::Compile:
+    file: lib/Test/Compile.pm
+    version: 0.13
+generated_by: Module::Build version 0.340201
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
   version: 1.4
-name: Test-Compile
-no_index:
-  directory:
-    - inc
-    - t
-    - xt
-recommends:
-  Devel::CheckOS: 0
-requires:
-  UNIVERSAL::require: 0
-  perl: 5.6.0
-resources:
-  bugtracker: http://rt.cpan.org/Public/Dist/Display.html?Name=Test-Compile
-  homepage: http://search.cpan.org/dist/Test-Compile/
-  license: http://dev.perl.org/licenses/
-  repository: git://github.com/hanekomu/test-compile.git
-version: 0.13

@@ -27,26 +27,12 @@ sub import {
 sub pm_file_ok {
     my $file = shift;
     my $name = @_ ? shift : "Compile test for $file";
-    if (!-f $file) {
-        $Test->ok(0, $name);
-        $Test->diag("$file does not exist");
-        return;
-    }
-    my $module = $file;
-    $module =~ s!^(blib[/\\])?lib[/\\]!!;
-    $module =~ s![/\\]!::!g;
-    $module =~ s/\.pm$//;
-    my $ok = 1;
-    $module->use;
-    $ok = 0 if $@;
-    my $diag = '';
 
-    unless ($ok) {
-        $diag = "couldn't use $module ($file): $@";
-    }
+    my ($ok,$diag) = _check_syntax($file,1);
+
     $Test->ok($ok, $name);
     $Test->diag($diag) unless $ok;
-    $ok;
+    return $ok;
 }
 
 sub pl_file_ok {
@@ -66,20 +52,12 @@ sub pl_file_ok {
             return;
         }
     }
-    unless (-f $file) {
-        $Test->ok(0, $name);
-        $Test->diag("$file does not exist");
-        return;
-    }
-    my $out = `$^X -cw $file 2>&1`;
-    if ($?) {
-        $Test->ok(0, 'Script does not compile');
-        $Test->diag($out);
-        return;
-    } else {
-        $Test->ok(1, $name);
-        return 1;
-    }
+
+    my ($ok,$diag) = _check_syntax($file,0);
+
+    $Test->ok($ok, $name);
+    $Test->diag($diag) unless $ok;
+    return $ok;
 }
 
 sub all_pm_files_ok {
@@ -104,37 +82,64 @@ sub all_pl_files_ok {
 
 sub all_pm_files {
     my @queue = @_ ? @_ : _pm_starting_points();
+
     my @pm;
-    while (@queue) {
-        my $file = shift @queue;
-        if (-d $file) {
-            local *DH;
-            opendir DH, $file or next;
-            my @newfiles = readdir DH;
-            closedir DH;
-            @newfiles = File::Spec->no_upwards(@newfiles);
-            @newfiles = grep { $_ ne "CVS" && $_ ne ".svn" } @newfiles;
-            for my $newfile (@newfiles) {
-                my $filename = File::Spec->catfile($file, $newfile);
-                if (-f $filename) {
-                    push @queue, $filename;
-                } else {
-                    push @queue, File::Spec->catdir($file, $newfile);
-                }
-            }
-        }
+    for my $file ( _find_files(@queue) ) {
         if (-f $file) {
             push @pm, $file if $file =~ /\.pm$/;
         }
     }
-    @pm;
+    return @pm;
 }
 
 sub all_pl_files {
     my @queue = @_ ? @_ : _pl_starting_points();
+
     my @pl;
-    while (@queue) {
-        my $file = shift @queue;
+    for my $file ( _find_files(@queue) ) {
+        if (-f $file) {
+            # Only accept files with no extension or extension .pl
+            push @pl, $file if $file =~ /(?:^[^.]+$|\.pl$)/;
+        }
+    }
+    return @pl;
+}
+
+sub _check_syntax {
+    my ($file,$require) = @_;
+
+    if (! -f $file) {
+        return (0,"$file does not exist");
+    }
+
+    if ( $require ) {
+        my $module = $file;
+        $module =~ s!^(blib[/\\])?lib[/\\]!!;
+        $module =~ s![/\\]!::!g;
+        $module =~ s/\.pm$//;
+
+        $module->use;
+        if ( $@ ) {
+            return (0,"couldn't use $module ($file): $@");
+        }
+    } else {
+        open my $olderr, ">&", \*STDERR or die "Can't dup STDERR: $!";
+        close(STDERR);
+        system($^X, (map { "-I$_" } split ':', $ENV{PERL5LIB}), '-c', $file);
+        my $error = $?;
+        open STDERR, ">&", $olderr or die "Can't dup olderr: $!";
+        if ($error) {
+            return (0,"Script does not compile");
+        }
+    }
+
+    return (1,undef);
+}
+
+sub _find_files {
+    my (@queue) = @_;
+
+    for my $file (@queue) {
         if (-d $file) {
             local *DH;
             opendir DH, $file or next;
@@ -151,13 +156,8 @@ sub all_pl_files {
                 }
             }
         }
-        if (-f $file) {
-
-            # Only accept files with no extension or extension .pl
-            push @pl, $file if $file =~ /(?:^[^.]+$|\.pl$)/;
-        }
     }
-    @pl;
+    return @queue;
 }
 
 sub _pm_starting_points {
@@ -332,23 +332,6 @@ The order of the files returned is machine-dependent. If you want them
 sorted, you'll have to sort them yourself.
 
 =back
-
-=head1 BUGS AND LIMITATIONS
-
-No bugs have been reported.
-
-Please report any bugs or feature requests through the web interface at
-L<http://rt.cpan.org>.
-
-=head1 INSTALLATION
-
-See perlmodinstall for information and options on installing Perl modules.
-
-=head1 AVAILABILITY
-
-The latest version of this module is available from the Comprehensive Perl
-Archive Network (CPAN). Visit <http://www.perl.com/CPAN/> to find a CPAN
-site near you. Or see L<http://search.cpan.org/dist/Test-Compile/>.
 
 =head1 AUTHORS
 
