@@ -1,6 +1,6 @@
 ---
 name: Test-Compile
-version: 0.13
+version: v0.13.1
 author:
   - 'Evan Giles <egiles@cpan.org>'
 abstract: Check whether Perl module files compile correctly
@@ -11,12 +11,14 @@ resources:
 requires:
   UNIVERSAL::require: 0
   perl: v5.6.0
+recommends:
+  Devel::CheckOS: 0
 configure_requires:
   Module::Build: 0.340201
 provides:
   Test::Compile:
     file: lib/Test/Compile.pm
-    version: 0.13
+    version: v0.13.1
 generated_by: Module::Build version 0.340201
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html

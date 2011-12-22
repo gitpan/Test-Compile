@@ -5,7 +5,7 @@ use strict;
 use Test::Builder;
 use File::Spec;
 use UNIVERSAL::require;
-our $VERSION = '0.13';
+our $VERSION = '0.13.1';
 my $Test = Test::Builder->new;
 
 sub import {
@@ -172,8 +172,6 @@ sub _pl_starting_points {
 1;
 __END__
 
-=for stopwords Sagar Shah
-
 =head1 NAME
 
 Test::Compile - Check whether Perl module files compile correctly
@@ -339,9 +337,11 @@ Sagar R. Shah C<< <srshah@cpan.org> >>
 
 Marcel GrE<uuml>nauer, C<< <marcel@cpan.org> >>
 
+Evan Giles, C<< <egiles@cpan.org> >>
+
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2007-2009 by the authors.
+Copyright 2007-2011 by the authors.
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
