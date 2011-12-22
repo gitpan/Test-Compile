@@ -1,6 +1,6 @@
 Revision history for Perl extension Test-Compile
 
-0.14  XXXXXXXXXXXXXXXXXXXXXXXXXXX (Evan Giles <egiles@cpan.org>)
+0.14  Tue 2012.01.10 20:03:24 NZST (Evan Giles <egiles@cpan.org>)
     - Convert to Module::Build
     - Improved test for pl_file_ok()
     - Better test coverage (which files do we process, failed to compile, etc)

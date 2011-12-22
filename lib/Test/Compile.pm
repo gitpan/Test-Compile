@@ -5,7 +5,7 @@ use strict;
 use Test::Builder;
 use File::Spec;
 use UNIVERSAL::require;
-our $VERSION = '0.13.1';
+our $VERSION = '0.13_1';
 my $Test = Test::Builder->new;
 
 sub import {
@@ -333,10 +333,8 @@ sorted, you'll have to sort them yourself.
 
 =head1 AUTHORS
 
-Sagar R. Shah C<< <srshah@cpan.org> >>
-
-Marcel GrE<uuml>nauer, C<< <marcel@cpan.org> >>
-
+Sagar R. Shah C<< <srshah@cpan.org> >>,
+Marcel GrE<uuml>nauer, C<< <marcel@cpan.org> >>,
 Evan Giles, C<< <egiles@cpan.org> >>
 
 =head1 COPYRIGHT AND LICENSE
