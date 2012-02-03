@@ -16,13 +16,14 @@ sub test_all_pl_files {
   is(scalar @files,3,"Found correct number of scripts");
   like($files[0],qr/failure.pl/,"Found the failure script");
   like($files[1],qr/success.pl/,"Found the success script");
-  like($files[2],qr/tainted.pl/,"Found the tainted script");
+  like($files[2],qr/taint.pl/,"Found the tainted script");
 }
 
 sub test_all_pm_files {
   my @files = sort (all_pm_files('t/scripts'));
-  is(scalar @files,1,"Found correct number of modules");
+  is(scalar @files,2,"Found correct number of modules");
   like($files[0],qr/Module.pm/,"Found the module file");
+  like($files[1],qr/Module2.pm/,"Found the module2 file");
 }
 
 test_all_pl_files();
