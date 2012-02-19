@@ -8,7 +8,7 @@ use Test::Builder;
 use File::Spec;
 use UNIVERSAL::require;
 
-our $VERSION = '0.15';
+our $VERSION = '0.16';
 my $Test = Test::Builder->new;
 
 sub import {
@@ -75,6 +75,7 @@ sub all_pm_files_ok {
 
 sub all_pl_files_ok {
     my @files = @_ ? @_ : all_pl_files();
+    $Test->skip_all("no pl files found") unless @files;
     $Test->plan(tests => scalar @files);
     my $ok = 1;
     for (@files) {
@@ -100,7 +101,7 @@ sub all_pl_files {
 
     my @pl;
     for my $file ( _find_files(@queue) ) {
-        if (-f $file) {
+        if (defined($file) && -f $file) {
             # Only accept files with no extension or extension .pl
             push @pl, $file if $file =~ /(?:^[^.]+$|\.pl$)/;
         }
@@ -124,6 +125,18 @@ sub _run_in_subprocess {
     }
 }
 
+sub _is_in_taint_mode {
+    my ($file) = @_;
+
+    open(my $f, "<", $file) or die "could not open $file";
+    my $shebang = <$f>;
+    my $taint = undef;
+    if ($shebang =~ m/^#![\/\w]+\s+\-w?(T)/) {
+        $taint = $1;
+    }
+    return $taint;
+}
+
 sub _check_syntax {
     my ($file,$require) = @_;
 
@@ -137,8 +150,10 @@ sub _check_syntax {
             $module->use;
             return ($@ ? 0 : 1);
         } else {
+            my $taint = _is_in_taint_mode($file);
+            my $t = $taint ? "T" : "";
             my @perl5lib = split(':', ($ENV{PERL5LIB}||""));
-            system($^X, (map { "-I$_" } @perl5lib), '-c', $file);
+            system($^X, (map { "-I$_" } @perl5lib), "-Iblib/lib", "-c$t", $file);
             return ($? ? 0 : 1);
         }
     }
@@ -148,7 +163,7 @@ sub _find_files {
     my (@queue) = @_;
 
     for my $file (@queue) {
-        if (-d $file) {
+        if (defined($file) && -d $file) {
             local *DH;
             opendir DH, $file or next;
             my @newfiles = readdir DH;
@@ -347,7 +362,7 @@ Evan Giles, C<< <egiles@cpan.org> >>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2007-2011 by the authors.
+Copyright 2007-2012 by the authors.
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
