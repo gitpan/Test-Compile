@@ -8,7 +8,7 @@ use Test::Builder;
 use File::Spec;
 use UNIVERSAL::require;
 
-our $VERSION = '0.16';
+our $VERSION = '0.16.1';
 my $Test = Test::Builder->new;
 
 sub import {
@@ -125,18 +125,6 @@ sub _run_in_subprocess {
     }
 }
 
-sub _is_in_taint_mode {
-    my ($file) = @_;
-
-    open(my $f, "<", $file) or die "could not open $file";
-    my $shebang = <$f>;
-    my $taint = undef;
-    if ($shebang =~ m/^#![\/\w]+\s+\-w?(T)/) {
-        $taint = $1;
-    }
-    return $taint;
-}
-
 sub _check_syntax {
     my ($file,$require) = @_;
 
@@ -150,10 +138,10 @@ sub _check_syntax {
             $module->use;
             return ($@ ? 0 : 1);
         } else {
-            my $taint = _is_in_taint_mode($file);
-            my $t = $taint ? "T" : "";
             my @perl5lib = split(':', ($ENV{PERL5LIB}||""));
-            system($^X, (map { "-I$_" } @perl5lib), "-Iblib/lib", "-c$t", $file);
+            my $taint = _is_in_taint_mode($file);
+            unshift @perl5lib, 'blib/lib';
+            system($^X, (map { "-I$_" } @perl5lib), "-c$taint", $file);
             return ($? ? 0 : 1);
         }
     }
@@ -192,6 +180,19 @@ sub _pl_starting_points {
     return 'script' if -e 'script';
     return 'bin'    if -e 'bin';
 }
+
+sub _is_in_taint_mode {
+    my $file = shift;
+    open(FILE, $file) or die "could not open $file";
+    my $shebang = <FILE>;
+    my $taint = "";
+    if ($shebang =~ /^#![\/\w]+\s+\-w?([tT])/) {
+        $taint = $1;
+    }
+    close FILE;
+    return $taint;
+}
+
 1;
 __END__
 
