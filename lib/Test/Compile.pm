@@ -8,15 +8,8 @@ use Test::Builder;
 use File::Spec;
 use UNIVERSAL::require;
 
-our $VERSION = '0.17_01';
+our $VERSION = '0.17_02';
 my $Test = Test::Builder->new;
-
-BEGIN {
-  my $f = __FILE__;
-  my $p = __PACKAGE__;
-  my $v = "0.17_01";
-  print STDERR "\nCompiling $p ($v) from $f\n";
-}
 
 sub import {
     my $self   = shift;
@@ -48,7 +41,6 @@ sub pm_file_ok {
 sub pl_file_ok {
     my $file = shift;
     my $name = @_ ? shift : "Compile test for $file";
-    my $verbose = shift;
 
     # don't "use Devel::CheckOS" because Test::Compile is included by
     # Module::Install::StandardTests, and we don't want to have to ship
@@ -64,7 +56,7 @@ sub pl_file_ok {
         }
     }
 
-    my $ok = _run_in_subprocess(sub{_check_syntax($file,0)},$verbose);
+    my $ok = _run_in_subprocess(sub{_check_syntax($file,0)});
 
     $Test->ok($ok, $name);
     $Test->diag("$file does not compile") unless $ok;
@@ -118,7 +110,7 @@ sub all_pl_files {
 }
 
 sub _run_in_subprocess {
-    my ($closure,$verbose) = @_;
+    my ($closure) = @_;
 
     my $pid = fork();
     if ( ! defined($pid) ) {
@@ -127,9 +119,7 @@ sub _run_in_subprocess {
         wait();
         return ($? ? 0 : 1);
     } else {
-        if ( !$verbose ) {
-          close(STDERR);
-        }
+        close(STDERR);
         my $rv = $closure->();
         exit ($rv ? 0 : 1);
     }
@@ -192,14 +182,14 @@ sub _pl_starting_points {
 }
 
 sub _is_in_taint_mode {
-    my ($file) = @_;
-
-    open(my $f, "<", $file) or die "could not open $file";
-    my $shebang = <$f>;
+    my $file = shift;
+    open(FILE, $file) or die "could not open $file";
+    my $shebang = <FILE>;
     my $taint = "";
     if ($shebang =~ /^#![\/\w]+\s+\-w?([tT])/) {
         $taint = $1;
     }
+    close FILE;
     return $taint;
 }
 

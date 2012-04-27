@@ -10,6 +10,7 @@ t/03-pl-file-ok.t
 t/04-pl-file-ok-vms.t
 t/10-find-files.t
 t/10-taint.t
+t/11.lib.t
 t/20-internal-check-syntax.t
 t/25-internal-is-in-taint-mode.t
 t/30-suppress-stderr.t
@@ -31,3 +32,4 @@ xt/author/08_synopsis.t
 xt/author/10_has_version.t
 xt/author/99-version.t
 xt/author/perlcriticrc
+META.json
