@@ -8,7 +8,7 @@ use Test::Builder;
 use File::Spec;
 use UNIVERSAL::require;
 
-our $VERSION = '0.17_02';
+our $VERSION = '0.18';
 my $Test = Test::Builder->new;
 
 sub import {
@@ -41,6 +41,7 @@ sub pm_file_ok {
 sub pl_file_ok {
     my $file = shift;
     my $name = @_ ? shift : "Compile test for $file";
+    my $verbose = shift;
 
     # don't "use Devel::CheckOS" because Test::Compile is included by
     # Module::Install::StandardTests, and we don't want to have to ship
@@ -56,7 +57,7 @@ sub pl_file_ok {
         }
     }
 
-    my $ok = _run_in_subprocess(sub{_check_syntax($file,0)});
+    my $ok = _run_in_subprocess(sub{_check_syntax($file,0)},$verbose);
 
     $Test->ok($ok, $name);
     $Test->diag("$file does not compile") unless $ok;
@@ -110,7 +111,7 @@ sub all_pl_files {
 }
 
 sub _run_in_subprocess {
-    my ($closure) = @_;
+    my ($closure,$verbose) = @_;
 
     my $pid = fork();
     if ( ! defined($pid) ) {
@@ -119,7 +120,9 @@ sub _run_in_subprocess {
         wait();
         return ($? ? 0 : 1);
     } else {
-        close(STDERR);
+        if ( !$verbose ) {
+            open STDERR, '>', File::Spec->devnull;
+        }
         my $rv = $closure->();
         exit ($rv ? 0 : 1);
     }
@@ -182,14 +185,14 @@ sub _pl_starting_points {
 }
 
 sub _is_in_taint_mode {
-    my $file = shift;
-    open(FILE, $file) or die "could not open $file";
-    my $shebang = <FILE>;
+    my ($file) = @_;
+
+    open(my $f, "<", $file) or die "could not open $file";
+    my $shebang = <$f>;
     my $taint = "";
     if ($shebang =~ /^#![\/\w]+\s+\-w?([tT])/) {
         $taint = $1;
     }
-    close FILE;
     return $taint;
 }
 
@@ -210,8 +213,8 @@ Test::Compile - Check whether Perl module files compile correctly
 
 =head1 DESCRIPTION
 
-C<Test::Compile> lets you check the validity of a Perl module file or Perl
-script file, and report its results in standard C<Test::Simple> fashion.
+C<Test::Compile> lets you check the whether a Perl module or script file
+compiles properly, and report its results in standard C<Test::Simple> fashion.
 
     BEGIN {
         use Test::Compile tests => $num_tests;
@@ -270,9 +273,6 @@ Test::Compile should be mandatory, not optional.
 
 C<pm_file_ok()> will okay the test if the Perl module compiles correctly.
 
-When it fails, C<pm_file_ok()> will show any compilation errors as
-diagnostics.
-
 The optional second argument C<TESTNAME> is the name of the test. If it is
 omitted, C<pm_file_ok()> chooses a default test name C<Compile test for
 FILENAME>.
@@ -283,9 +283,6 @@ C<pl_file_ok()> will okay the test if the Perl script compiles correctly. You
 need to give the path to the script relative to this distribution's base
 directory. So if you put your scripts in a 'top-level' directory called script
 the argument would be C<script/filename>.
-
-When it fails, C<pl_file_ok()> will show any compilation errors as
-diagnostics.
 
 The optional second argument C<TESTNAME> is the name of the test. If it is
 omitted, C<pl_file_ok()> chooses a default test name C<Compile test for
