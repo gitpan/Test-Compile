@@ -32,7 +32,11 @@
    "provides" : {
       "Test::Compile" : {
          "file" : "lib/Test/Compile.pm",
-         "version" : "0.18"
+         "version" : "0.19"
+      },
+      "Test::Compile::Internal" : {
+         "file" : "lib/Test/Compile/Internal.pm",
+         "version" : "0.19"
       }
    },
    "release_status" : "stable",
@@ -44,5 +48,5 @@
          "url" : "http://github.com/egiles/test-compile"
       }
    },
-   "version" : "0.18"
+   "version" : "0.19"
 }
