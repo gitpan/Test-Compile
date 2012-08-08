@@ -6,7 +6,7 @@ build_requires: {}
 configure_requires:
   Module::Build: 0.38
 dynamic_config: 1
-generated_by: 'Module::Build version 0.38, CPAN::Meta::Converter version 2.120921'
+generated_by: 'Module::Build version 0.38, CPAN::Meta::Converter version 2.110440'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -15,10 +15,10 @@ name: Test-Compile
 provides:
   Test::Compile:
     file: lib/Test/Compile.pm
-    version: 0.19
+    version: 0.20
   Test::Compile::Internal:
     file: lib/Test/Compile/Internal.pm
-    version: 0.19
+    version: 0.20
 recommends:
   Devel::CheckOS: 0
 requires:
@@ -27,4 +27,4 @@ requires:
 resources:
   license: http://dev.perl.org/licenses/
   repository: http://github.com/egiles/test-compile
-version: 0.19
+version: 0.20
