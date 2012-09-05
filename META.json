@@ -1,10 +1,10 @@
 {
-   "abstract" : "Check whether Perl module files compile correctly",
+   "abstract" : "Check whether Perl files compile correctly.",
    "author" : [
       "Evan Giles <egiles@cpan.org>"
    ],
    "dynamic_config" : 1,
-   "generated_by" : "Module::Build version 0.38, CPAN::Meta::Converter version 2.110440",
+   "generated_by" : "Module::Build version 0.38, CPAN::Meta::Converter version 2.120921",
    "license" : [
       "perl_5"
    ],
@@ -21,10 +21,10 @@
       },
       "runtime" : {
          "recommends" : {
-            "Devel::CheckOS" : 0
+            "Devel::CheckOS" : "0"
          },
          "requires" : {
-            "UNIVERSAL::require" : 0,
+            "UNIVERSAL::require" : "0",
             "perl" : "v5.6.0"
          }
       }
@@ -32,11 +32,11 @@
    "provides" : {
       "Test::Compile" : {
          "file" : "lib/Test/Compile.pm",
-         "version" : "0.20"
+         "version" : "0.21"
       },
       "Test::Compile::Internal" : {
          "file" : "lib/Test/Compile/Internal.pm",
-         "version" : "0.20"
+         "version" : "0.21"
       }
    },
    "release_status" : "stable",
@@ -48,5 +48,5 @@
          "url" : "http://github.com/egiles/test-compile"
       }
    },
-   "version" : "0.20"
+   "version" : "0.21"
 }

@@ -8,22 +8,26 @@ use File::Spec;
 use UNIVERSAL::require;
 use Test::Builder;
 
-our $VERSION = '0.20';
+our $VERSION = '0.21';
 
 =head1 NAME
 
-Test::Compile::Internal - Internal workings for Test::Compile.
+Test::Compile::Internal - Test whether your perl files compile.
 
 =head1 SYNOPSIS
 
     use Test::Compile::Internal;
-    my $tci = Test::Compile::Internal->new();
-    $tci->all_files_ok();
-    $tci->done_testing();
+    my $test = Test::Compile::Internal->new();
+    $test->all_files_ok();
+    $test->done_testing();
 
 =head1 DESCRIPTION
 
-Don't use this module directly, it is BETA software, and subject to change
+C<Test::Compile::Internal> is an object oriented tool for testing whether your
+perl files compile.
+
+It is primarily to provide the inner workings of C<Test::Compile>, but it can
+also be used directly to test a CPAN distribution.
 
 =head1 METHODS
 
@@ -44,9 +48,13 @@ sub new {
     return $self;
 }
 
-=item C<all_files_ok([@dirs])>
+=item C<all_files_ok(@dirs)>
 
 Checks all the perl files it can find for compilation errors.
+
+If C<@dirs> is defined then it is taken as an array of directories to 
+be searched for perl files, otherwise it searches some default locatioons
+- see L</all_pm_files()> and L</all_pl_files()>. 
 
 =cut
 sub all_files_ok {
@@ -66,9 +74,9 @@ sub all_files_ok {
 }
 
 
-=item C<verbose([$verbose])>
+=item C<verbose($verbose)>
 
-An accessor to get/set the verbose flag.  If verbose is set, you can get some 
+An accessor to get/set the verbose flag.  If C<verbose> is set, you can get some 
 extra diagnostics when compilation fails.
 
 Verbose is set off by default.
@@ -84,10 +92,10 @@ sub verbose {
     return $self->{verbose};
 }
 
-=item C<all_pm_files([@dirs])>
+=item C<all_pm_files(@dirs)>
 
 Returns a list of all the perl module files - that is any files ending in F<.pm>
-in I<@dirs> and in directories below. If @dirs is not passed, it
+in C<@dirs> and in directories below. If C<@dirs> is undefined, it
 searches F<blib> if F<blib> exists, or else F<lib>.
 
 Skips any files in C<CVS> or C<.svn> directories.
@@ -110,11 +118,11 @@ sub all_pm_files {
     return @pm;
 }
 
-=item C<all_pl_files([@dirs])>
+=item C<all_pl_files(@dirs)>
 
 Returns a list of all the perl script files - that is, any files ending in F<.pl>
-or files with no extension in I<@dirs> and in directories below. If
-@dirs is not passed, it searches F<script> if F<script> exists, or else
+or files with no extension in C<@dirs> and in directories below. If
+C<@dirs> is undefined, it searches F<script> if F<script> exists, or else
 F<bin> if F<bin> exists.
 
 Skips any files in C<CVS> or C<.svn> directories.
@@ -141,28 +149,54 @@ sub all_pl_files {
 
 =item C<pl_file_compiles($file)>
 
-Returns true if $file compiles as a perl script.
+Returns true if C<$file> compiles as a perl script.
 
 =cut
 
 sub pl_file_compiles {
     my ($self,$file) = @_;
-    my $ok = $self->_run_in_subprocess(sub{$self->_check_syntax($file,0)});
+    return $self->_run_closure(
+        sub{
+            if ( -f $file ) {
+                my @perl5lib = split(':', ($ENV{PERL5LIB}||""));
+                my $taint = $self->_is_in_taint_mode($file);
+                unshift @perl5lib, 'blib/lib';
+                system($^X, (map { "-I$_" } @perl5lib), "-c$taint", $file);
+                return ($? ? 0 : 1);
+            }
+        }
+    );
 }
 
 =item C<pm_file_compiles($file)>
 
-Returns true if $file compiles as a perl module.
+Returns true if C<$file> compiles as a perl module.
 
 =back
 =cut
 
 sub pm_file_compiles {
     my ($self,$file) = @_;
-    my $ok = $self->_run_in_subprocess(sub{$self->_check_syntax($file,1)});
+
+    return $self->_run_closure(
+        sub{
+            if ( -f $file ) {
+                my $module = $file;
+                $module =~ s!^(blib[/\\])?lib[/\\]!!;
+                $module =~ s![/\\]!::!g;
+                $module =~ s/\.pm$//;
+    
+                $module->use;
+                return ($@ ? 0 : 1);
+            }
+        }
+    );
 }
 
 =head1 TEST METHODS
+
+C<Test::Compile::Internal> encapsulates a C<Test::Builder> object, and provides
+access to some of its methods.
 
 =over 4
 
@@ -178,7 +212,8 @@ sub done_testing {
 
 =item C<ok($test,$name)>
 
-Your basic test. Pass if $test is true, fail if $test is false. Just like Test::Simple's ok().
+Your basic test. Pass if C<$test> is true, fail if C<$test> is false. Just
+like C<Test::Simple>'s C<ok()>.
 
 =cut
 sub ok {
@@ -198,7 +233,8 @@ sub plan {
 
 =item C<exported_to($caller)>
 
-Tells Test::Builder what package you exported your functions to.  I am not sure why you would want to do that, or whether it would do you any good.
+Tells C<Test::Builder> what package you exported your functions to.  I am
+not sure why you would want to do that, or whether it would do you any good.
 
 =cut
 
@@ -209,9 +245,11 @@ sub exported_to {
 
 =item C<diag(@msgs)>
 
-Prints out the given @msgs. Like print, arguments are simply appended together.
+Prints out the given C<@msgs>. Like print, arguments are simply appended
+together.
 
-Output will be indented and marked with a # so as not to interfere with test output. A newline will be put on the end if there isn't one already.
+Output will be indented and marked with a # so as not to interfere with
+test output. A newline will be put on the end if there isn't one already.
 
 We encourage using this rather than calling print directly.
 
@@ -224,7 +262,7 @@ sub diag {
 
 =item C<skip($why)>
 
-Skips the current test, reporting $why.
+Skips the current test, reporting C<$why>.
 
 =cut
 
@@ -235,7 +273,7 @@ sub skip {
 
 =item C<skip_all($reason)>
 
-Skips all the tests, using the given $reason. Exits immediately with 0.
+Skips all the tests, using the given C<$reason>. Exits immediately with 0.
 
 =back
 =cut
@@ -245,7 +283,7 @@ sub skip_all {
     $self->{test}->skip_all(@args);
 }
 
-sub _run_in_subprocess {
+sub _run_closure {
     my ($self,$closure) = @_;
 
     my $pid = fork();
@@ -254,35 +292,15 @@ sub _run_in_subprocess {
     } elsif ( $pid ) {
         wait();
         return ($? ? 0 : 1);
-    } else {
-        if ( ! $self->verbose() ) {
-            open STDERR, '>', File::Spec->devnull;
-        }
-        my $rv = $closure->();
-        exit ($rv ? 0 : 1);
     }
-}
 
-sub _check_syntax {
-    my ($self,$file,$require) = @_;
-
-    if (-f $file) {
-        if ( $require ) {
-            my $module = $file;
-            $module =~ s!^(blib[/\\])?lib[/\\]!!;
-            $module =~ s![/\\]!::!g;
-            $module =~ s/\.pm$//;
-    
-            $module->use;
-            return ($@ ? 0 : 1);
-        } else {
-            my @perl5lib = split(':', ($ENV{PERL5LIB}||""));
-            my $taint = $self->_is_in_taint_mode($file);
-            unshift @perl5lib, 'blib/lib';
-            system($^X, (map { "-I$_" } @perl5lib), "-c$taint", $file);
-            return ($? ? 0 : 1);
-        }
+    if ( ! $self->verbose() ) {
+        open STDERR, '>', File::Spec->devnull;
     }
+
+    my $rv = $closure->();
+
+    exit ($rv ? 0 : 1);
 }
 
 sub _find_files {
@@ -332,8 +350,6 @@ sub _is_in_taint_mode {
 }
 
 1;
-__END__
-
 
 =head1 AUTHORS
 
@@ -350,7 +366,7 @@ it under the same terms as Perl itself.
 
 =head1 SEE ALSO
 
-L<Test::LoadAllModules> just handles modules, not script files, but has more
-fine-grained control.
+L<Test::Strict> proveds functions to ensure your perl files comnpile, with
+the added bonus that it will check you have used strict in all your files.
 
 =cut
