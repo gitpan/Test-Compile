@@ -8,7 +8,7 @@ use File::Spec;
 use UNIVERSAL::require;
 use Test::Builder;
 
-our $VERSION = '0.22';
+our $VERSION = '0.23';
 
 =head1 NAME
 
@@ -158,10 +158,9 @@ sub pl_file_compiles {
     return $self->_run_closure(
         sub{
             if ( -f $file ) {
-                my @perl5lib = split(':', ($ENV{PERL5LIB}||""));
+                my @inc = ('blib/lib', @INC);
                 my $taint = $self->_is_in_taint_mode($file);
-                unshift @perl5lib, 'blib/lib';
-                system($^X, (map { "-I$_" } @perl5lib), "-c$taint", $file);
+                system($^X, (map { "-I$_" } @inc), "-c$taint", $file);
                 return ($? ? 0 : 1);
             }
         }
@@ -343,7 +342,7 @@ sub _is_in_taint_mode {
     open(my $f, "<", $file) or die "could not open $file";
     my $shebang = <$f>;
     my $taint = "";
-    if ($shebang =~ /^#![\/\w]+\s+\-w?([tT])/) {
+    if ($shebang =~ /^#!\s*[\/\w]+\s+-\w*([tT])/) {
         $taint = $1;
     }
     return $taint;
@@ -359,7 +358,7 @@ Evan Giles, C<< <egiles@cpan.org> >>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2007-2012 by the authors.
+Copyright 2007-2013 by the authors.
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
