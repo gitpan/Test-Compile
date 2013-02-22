@@ -1,9 +1,7 @@
 Revision history for Perl extension Test-Compile
 
-v0.24.0 2013.02.23                (Evan Giles <egiles@cpan.org>)
-    - Make the POD more explicit (rt83472)
-    - update copyright year
-    - Try to use Sematic Versioning - http://semver.org
+0.24  2013 02 22                  (Evan Giles <egiles@cpan.org>)
+    - Update POD to explain more problems with Test::Compile
 
 0.23  2013.01.23                  (Evan Giles <egiles@cpan.org>)
     - Update Copyright for 2013

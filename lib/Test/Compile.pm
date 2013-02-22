@@ -7,7 +7,7 @@ use strict;
 use UNIVERSAL::require;
 use Test::Compile::Internal;
 
-our $VERSION = 'v0.24.0';
+our $VERSION = '0.24';
 my $Test = Test::Compile::Internal->new();
 _verbose(1);
 
