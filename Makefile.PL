@@ -6,7 +6,8 @@ WriteMakefile
   'NAME' => 'Test::Compile',
   'VERSION_FROM' => 'lib/Test/Compile.pm',
   'PREREQ_PM' => {
-                   'UNIVERSAL::require' => 0
+                   'UNIVERSAL::require' => 0,
+                   'version' => 0
                  },
   'INSTALLDIRS' => 'site',
   'EXE_FILES' => [],

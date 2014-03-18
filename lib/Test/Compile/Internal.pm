@@ -7,8 +7,7 @@ use strict;
 use File::Spec;
 use UNIVERSAL::require;
 use Test::Builder;
-
-our $VERSION = '0.24';
+use version; our $VERSION = qv("v1.0.0");
 
 =head1 NAME
 
@@ -172,10 +171,11 @@ sub pl_file_compiles {
 Returns true if C<$file> compiles as a perl module.
 
 =back
+
 =cut
 
 sub pm_file_compiles {
-    my ($self,$file) = @_;
+    my ($self,$file,%args) = @_;
 
     return $self->_run_closure(
         sub{
@@ -185,8 +185,15 @@ sub pm_file_compiles {
                 $module =~ s![/\\]!::!g;
                 $module =~ s/\.pm$//;
     
-                $module->use;
-                return ($@ ? 0 : 1);
+                return 1 if $module->require;
+
+                $self->{test}->diag("Compilation of $module failed: $@")
+                  if $self->verbose();
+                return 0;
+            }
+            else {
+                $self->{test}->diag("$file could not be found") if $self->verbose();
+                return 0;
             }
         }
     );

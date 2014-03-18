@@ -25,18 +25,19 @@
          },
          "requires" : {
             "UNIVERSAL::require" : "0",
-            "perl" : "v5.6.0"
+            "perl" : "v5.6.0",
+            "version" : "0"
          }
       }
    },
    "provides" : {
       "Test::Compile" : {
          "file" : "lib/Test/Compile.pm",
-         "version" : "0.24"
+         "version" : "v1.0.0"
       },
       "Test::Compile::Internal" : {
          "file" : "lib/Test/Compile/Internal.pm",
-         "version" : "0.24"
+         "version" : "v1.0.0"
       }
    },
    "release_status" : "stable",
@@ -48,5 +49,5 @@
          "url" : "http://github.com/egiles/test-compile"
       }
    },
-   "version" : "0.24"
+   "version" : "v1.0.0"
 }
